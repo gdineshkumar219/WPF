@@ -10,18 +10,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="eraser.png" />
     <None Remove="new.png" />
     <None Remove="open.png" />
     <None Remove="pen.png" />
     <None Remove="redo.png" />
+    <None Remove="save.png" />
     <None Remove="undo.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="eraser.png" />
     <Resource Include="new.png" />
     <Resource Include="open.png" />
     <Resource Include="pen.png" />
     <Resource Include="redo.png" />
+    <Resource Include="save.png" />
     <Resource Include="undo.png" />
   </ItemGroup>
 
