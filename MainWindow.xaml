@@ -1,12 +1,60 @@
 ﻿<Window x:Class="WPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WPF"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800"
+        Background="Transparent"
+        MouseDown="OnMouseDown"
+        MouseMove="OnMouseMove"
+        MouseUp="OnMouseUp"
+        PreviewMouseDown="OnPreviewMouseDown">
     <Grid>
-
+        <DockPanel HorizontalAlignment="Left" VerticalAlignment="Top" Height="30">
+            <DockPanel DockPanel.Dock="Left" Margin="0,0,0,0">
+                <Button Click="OnOpenButton" VerticalAlignment="Center" Height="20" Width="20" Margin="5,0">
+                    <Image Source= "open.png"></Image>
+                    <Button.ToolTip>
+                        <ToolTip Content="Open a file"/>
+                    </Button.ToolTip>
+                </Button>
+                <Button Click="OnPenButton" VerticalAlignment="Center" Height="20" Width="20" Margin="5,0">
+                    <Image Source="pen.png"></Image>
+                    <Button.ToolTip>
+                        <ToolTip Content="Select pen color"/>
+                    </Button.ToolTip>
+                </Button>
+                <Button Click="OnEraserButton" VerticalAlignment="Center" Height="20" Width="20" Margin="5,0">
+                    <Image Source="erase.png"/>
+                    <Button.ToolTip>
+                        <ToolTip Content="Eraser"/>
+                    </Button.ToolTip>
+                </Button>
+                <Button Click="OnSaveButton" VerticalAlignment="Center" Height="20" Width="20" Margin="5,0">
+                    <Image Source="save.jpg"/>
+                    <Button.ToolTip>
+                        <ToolTip Content="Save a file"/>
+                    </Button.ToolTip>
+                </Button>
+                <Button Click="OnNewButton" VerticalAlignment="Center" Height="20" Width="20" Margin="5,0">
+                    <Image Source="new.png"></Image>
+                    <Button.ToolTip>
+                        <ToolTip Content="Create a new file"/>
+                    </Button.ToolTip>
+                </Button>
+                <Button Click="OnUndoButton" VerticalAlignment="Center" Height="20" Width="20" Margin="5,0">
+                    <Image Source="undo.png"></Image>
+                    <Button.ToolTip>
+                        <ToolTip Content="Undo"/>
+                    </Button.ToolTip>
+                </Button>
+                <Button Click="OnRedoButton" VerticalAlignment="Center" Height="20" Width="20" Margin="5,0">
+                    <Image Source="redo.png"></Image>
+                    <Button.ToolTip>
+                        <ToolTip Content="Redo"/>
+                    </Button.ToolTip>
+                </Button>
+            </DockPanel>
+        </DockPanel>
     </Grid>
 </Window>
+
+
