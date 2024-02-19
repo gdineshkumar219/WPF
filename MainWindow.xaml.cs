@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
+﻿using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Shapes;
 using Cursors = System.Windows.Input.Cursors;
 using MessageBox = System.Windows.MessageBox;
 using ColorDialog = System.Windows.Forms.ColorDialog;
@@ -15,32 +11,28 @@ using System.Windows.Media.Imaging;
 using Pen = System.Windows.Media.Pen;
 using Point = System.Windows.Point;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
-using Brushes = System.Windows.Media.Brushes;
+using Brushes = System.Drawing.Brushes;
 
 namespace WPF {
    public partial class MainWindow : Window {
       bool isDrawing = false;
 
-      List<Scribble> mScribbles = new List<Scribble> ();
-      Pen mPen = new Pen (System.Windows.Media.Brushes.Aqua, 2);
-      Stack<List<Point>> mUndoStack = new Stack<List<Point>> ();
-      Stack<List<Point>> mRedoStack = new Stack<List<Point>> ();
+      List<Scribble> mScribbles = new();
+      Pen mPen = new(System.Windows.Media.Brushes.Aqua, 2);
+      Stack<List<Point>> mUndoStack = new();
+      Stack<List<Point>> mRedoStack = new();
       BitmapImage backgroundImage;
+      Stack<Pen> mPenUndoStack = new();
+      Stack<Pen> mPenRedoStack = new();
 
       public MainWindow () => InitializeComponent ();
 
       protected override void OnRender (DrawingContext drawingContext) {
          base.OnRender (drawingContext);
-         if (backgroundImage != null) {
-            drawingContext.DrawImage (backgroundImage, new Rect (0, 0, ActualWidth, ActualHeight));
-         }
-         foreach (var scribble in mScribbles) {
-            if (scribble.Points.Count > 1) {
-               for (int i = 1; i < scribble.Points.Count; i++) {
-                  drawingContext.DrawLine (scribble.Pen, scribble.Points[i - 1], scribble.Points[i]);
-               }
-            }
-         }
+         if (backgroundImage != null) drawingContext.DrawImage (backgroundImage, new Rect (0, 0, ActualWidth, ActualHeight));
+         foreach (var scribble in mScribbles) if (scribble.mPoints.Count > 1)
+               for (int i = 1; i < scribble.mPoints.Count; i++)
+                  drawingContext.DrawLine (scribble.mPen, scribble.mPoints[i - 1], scribble.mPoints[i]);
       }
 
       void OnMouseDown (object sender, MouseButtonEventArgs e) {
@@ -48,7 +40,7 @@ namespace WPF {
             Cursor = Cursors.Pen;
             isDrawing = true;
             var newScribble = new Scribble (mPen);
-            newScribble.Points.Add (e.GetPosition (this));
+            newScribble.mPoints.Add (e.GetPosition (this));
             mScribbles.Add (newScribble);
          }
       }
@@ -56,8 +48,8 @@ namespace WPF {
       void OnMouseMove (object sender, MouseEventArgs e) {
          if (isDrawing) {
             Point currentPoint = e.GetPosition (this);
-            mScribbles[^1].Points.Add (currentPoint);
-            mUndoStack.Push (new List<Point> (mScribbles[^1].Points));
+            mScribbles[^1].mPoints.Add (currentPoint);
+            mUndoStack.Push (new List<Point> (mScribbles[^1].mPoints));
             mRedoStack.Clear ();
             InvalidateVisual ();
          }
@@ -70,7 +62,7 @@ namespace WPF {
 
       void OnPreviewMouseDown (object sender, MouseButtonEventArgs e) {
          if (isDrawing) {
-            mScribbles[^1].Points.Clear ();
+            mScribbles[^1].mPoints.Clear ();
             mScribbles.RemoveAt (mScribbles.Count - 1);
          }
          InvalidateVisual ();
@@ -89,16 +81,10 @@ namespace WPF {
             InvalidateVisual ();
          }
       }
-      //void OnEraserButton (object sender, RoutedEventArgs e) {
-      //   mPen = new Pen (Brushes.Transparent, 2);
-      //   var newScribble = new Scribble (mPen);
-      //   mScribbles.Add (newScribble);
-      //   InvalidateVisual ();
-      //}
       void OnEraserButton (object sender, RoutedEventArgs e) {
-         //Cursor = isEraserMode ? Cursors.Arrow : Cursors.Pen;
+       
       }
-
+     
 
       void OnSaveButton (object sender, RoutedEventArgs e) {
          SaveFileDialog saveFileDialog = new SaveFileDialog () {
@@ -129,9 +115,9 @@ namespace WPF {
             using (BinaryWriter bw = new (fs)) {
                foreach (var scribble in mScribbles) {
                   // Serialize pen color
-                  bw.Write (scribble.Pen.Brush.GetType ().ToString ());
-                  bw.Write (scribble.Pen.Brush.ToString ());
-                  foreach (var point in scribble.Points) {
+                  bw.Write (scribble.mPen.Brush.GetType ().ToString ());
+                  bw.Write (scribble.mPen.Brush.ToString ());
+                  foreach (var point in scribble.mPoints) {
                      bw.Write (point.X);
                      bw.Write (point.Y);
                   }
@@ -143,29 +129,27 @@ namespace WPF {
 
       void LoadFromBinary (string filePath) {
          using (FileStream fs = new (filePath, FileMode.Open)) {
-            using (BinaryReader reader = new (fs)) {
-               mScribbles.Clear ();
-               while (reader.BaseStream.Position < reader.BaseStream.Length) {
-                  string brushType = reader.ReadString ();
-                  string brushValue = reader.ReadString ();
-                  System.Windows.Media.Brush brush = (System.Windows.Media.Brush)new BrushConverter ().ConvertFromString (brushValue);
-                  Pen pen = new (brush, 2);
-                  var scribble = new Scribble (pen);
-                  while (true) {
-                     double x = reader.ReadDouble ();
-                     if (double.IsNaN (x)) {
-                        mScribbles.Add (scribble);
-                        break;
-                     }
-                     double y = reader.ReadDouble ();
-                     scribble.Points.Add (new Point (x, y));
+            using BinaryReader reader = new (fs);
+            mScribbles.Clear ();
+            while (reader.BaseStream.Position < reader.BaseStream.Length) {
+               string brushType = reader.ReadString ();
+               string brushValue = reader.ReadString ();
+               System.Windows.Media.Brush brush = (System.Windows.Media.Brush)new BrushConverter ().ConvertFromString (brushValue);
+               Pen pen = new (brush, 2);
+               var scribble = new Scribble (pen);
+               while (true) {
+                  double x = reader.ReadDouble ();
+                  if (double.IsNaN (x)) {
+                     mScribbles.Add (scribble);
+                     break;
                   }
+                  double y = reader.ReadDouble ();
+                  scribble.mPoints.Add (new Point (x, y));
                }
             }
          }
          InvalidateVisual ();
       }
-
 
       void SaveAsImage (string filePath) {
          RenderTargetBitmap rtb = new ((int)ActualWidth, (int)ActualHeight, 96, 96, PixelFormats.Pbgra32);
@@ -211,12 +195,11 @@ namespace WPF {
       }
 
       void SaveAsText (string filePath) {
-         using (StreamWriter sw = new (filePath)) {
-            foreach (var scribble in mScribbles) {
-               sw.WriteLine (scribble.Pen.Brush.ToString ());
-               foreach (var point in scribble.Points) sw.WriteLine ($"{point.X},{point.Y}");
-               sw.WriteLine ("END");
-            }
+         using StreamWriter sw = new (filePath);
+         foreach (var scribble in mScribbles) {
+            sw.WriteLine (scribble.mPen.Brush.ToString ());
+            foreach (var point in scribble.mPoints) sw.WriteLine ($"{point.X},{point.Y}");
+            sw.WriteLine ("END");
          }
       }
 
@@ -234,7 +217,7 @@ namespace WPF {
                   string[] parts = line.Split (',');
                   double x, y;
                   if (double.TryParse (parts[0], out x) && double.TryParse (parts[1], out y)) {
-                     scribble.Points.Add (new Point (x, y));
+                     scribble.mPoints.Add (new Point (x, y));
                   }
                } else {
                   System.Windows.Media.Brush brush = (System.Windows.Media.Brush)penConverter.ConvertFromString (line);
@@ -257,7 +240,7 @@ namespace WPF {
 
       void OnUndoButton (object sender, RoutedEventArgs e) {
          if (mScribbles.Count > 0) {
-            mRedoStack.Push (new List<Point> (mScribbles[mScribbles.Count - 1].Points));
+            mRedoStack.Push (new List<Point> (mScribbles[mScribbles.Count - 1].mPoints));
             mScribbles.RemoveAt (mScribbles.Count - 1);
             InvalidateVisual ();
          }
@@ -266,7 +249,7 @@ namespace WPF {
       void OnRedoButton (object sender, RoutedEventArgs e) {
          if (mRedoStack.Count > 0) {
             var newScribble = new Scribble (mPen);
-            newScribble.Points.AddRange (mRedoStack.Pop ());
+            newScribble.mPoints.AddRange (mRedoStack.Pop ());
             mScribbles.Add (newScribble);
             InvalidateVisual ();
          }
@@ -274,12 +257,12 @@ namespace WPF {
    }
 
    public class Scribble {
-      public Pen Pen { get; set; }
-      public List<Point> Points { get; set; }
+      public Pen mPen { get; set; }
+      public List<Point> mPoints { get; set; }
 
       public Scribble (Pen pen) {
-         Pen = pen;
-         Points = new List<Point> ();
+         mPen = pen;
+         mPoints = new List<Point> ();
       }
    }
 }
