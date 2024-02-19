@@ -17,13 +17,13 @@ namespace WPF {
    public partial class MainWindow : Window {
       bool isDrawing = false;
 
-      List<Scribble> mScribbles = new();
-      Pen mPen = new(System.Windows.Media.Brushes.Aqua, 2);
-      Stack<List<Point>> mUndoStack = new();
-      Stack<List<Point>> mRedoStack = new();
+      List<Scribble> mScribbles = new ();
+      Pen mPen = new (System.Windows.Media.Brushes.Aqua, 2);
+      Stack<List<Point>> mUndoStack = new ();
+      Stack<List<Point>> mRedoStack = new ();
       BitmapImage backgroundImage;
-      Stack<Pen> mPenUndoStack = new();
-      Stack<Pen> mPenRedoStack = new();
+      Stack<Pen> mPenUndoStack = new ();
+      Stack<Pen> mPenRedoStack = new ();
 
       public MainWindow () => InitializeComponent ();
 
@@ -81,10 +81,8 @@ namespace WPF {
             InvalidateVisual ();
          }
       }
-      void OnEraserButton (object sender, RoutedEventArgs e) {
-       
-      }
-     
+
+      void OnEraserButton (object sender, RoutedEventArgs e) { }
 
       void OnSaveButton (object sender, RoutedEventArgs e) {
          SaveFileDialog saveFileDialog = new SaveFileDialog () {
