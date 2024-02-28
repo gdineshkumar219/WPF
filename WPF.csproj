@@ -10,23 +10,33 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove=".gitignore" />
     <None Remove="eraser.png" />
-    <None Remove="new.png" />
-    <None Remove="open.png" />
-    <None Remove="pen.png" />
-    <None Remove="redo.png" />
-    <None Remove="save.png" />
-    <None Remove="undo.png" />
+    <None Remove="Icons\circle.png" />
+    <None Remove="Icons\line.png" />
+    <None Remove="Icons\new.png" />
+    <None Remove="Icons\open.png" />
+    <None Remove="Icons\pen.png" />
+    <None Remove="Icons\rect.png" />
+    <None Remove="Icons\redo.png" />
+    <None Remove="Icons\save.png" />
+    <None Remove="Icons\scribble.png" />
+    <None Remove="Icons\undo.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="eraser.png" />
-    <Resource Include="new.png" />
-    <Resource Include="open.png" />
-    <Resource Include="pen.png" />
-    <Resource Include="redo.png" />
-    <Resource Include="save.png" />
-    <Resource Include="undo.png" />
+    <Resource Include="Icons\circle.png" />
+    <Resource Include="Icons\line.png" />
+    <Resource Include="Icons\new.png" />
+    <Resource Include="Icons\open.png" />
+    <Resource Include="Icons\pen.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Icons\rect.png" />
+    <Resource Include="Icons\redo.png" />
+    <Resource Include="Icons\save.png" />
+    <Resource Include="Icons\scribble.png" />
+    <Resource Include="Icons\undo.png" />
   </ItemGroup>
 
 </Project>

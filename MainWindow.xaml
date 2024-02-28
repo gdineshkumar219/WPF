@@ -5,51 +5,68 @@
         Background="Transparent"
         MouseDown="OnMouseDown"
         MouseMove="OnMouseMove"
-        MouseUp="OnMouseUp"
-        PreviewMouseDown="OnPreviewMouseDown">
+        MouseUp="OnMouseUp">
     <Grid>
         <DockPanel HorizontalAlignment="Left" VerticalAlignment="Top" Height="30">
             <DockPanel DockPanel.Dock="Left" Margin="0,0,0,0">
                 <Button Click="OnOpenButton" VerticalAlignment="Center" Height="20" Width="20" Margin="5,0">
-                    <Image Source= "open.png"></Image>
+                    <Image Source= "Icons/open.png"/>
                     <Button.ToolTip>
                         <ToolTip Content="Open a file"/>
                     </Button.ToolTip>
                 </Button>
                 <Button Click="OnPenButton" VerticalAlignment="Center" Height="20" Width="20" Margin="5,0">
-                    <Image Source="pen.png"></Image>
+                    <Image Source="Icons/pen.png"/>
                     <Button.ToolTip>
                         <ToolTip Content="Select pen color"/>
                     </Button.ToolTip>
                 </Button>
-                <Button Click="OnEraserButton" VerticalAlignment="Center" Height="20" Width="20" Margin="5,0">
-                    <Image Source="eraser.png"/>
-                    <Button.ToolTip>
-                        <ToolTip Content="Eraser"/>
-                    </Button.ToolTip>
-                </Button>
                 <Button Click="OnSaveButton" VerticalAlignment="Center" Height="20" Width="20" Margin="5,0">
-                    <Image Source="save.png"/>
+                    <Image Source="Icons/save.png"/>
                     <Button.ToolTip>
                         <ToolTip Content="Save a file"/>
                     </Button.ToolTip>
                 </Button>
                 <Button Click="OnNewButton" VerticalAlignment="Center" Height="20" Width="20" Margin="5,0">
-                    <Image Source="new.png"></Image>
+                    <Image Source="Icons/new.png"/>
                     <Button.ToolTip>
                         <ToolTip Content="Create a new file"/>
                     </Button.ToolTip>
                 </Button>
                 <Button Click="OnUndoButton" VerticalAlignment="Center" Height="20" Width="20" Margin="5,0">
-                    <Image Source="undo.png"></Image>
+                    <Image Source="Icons/undo.png"/>
                     <Button.ToolTip>
                         <ToolTip Content="Undo"/>
                     </Button.ToolTip>
                 </Button>
                 <Button Click="OnRedoButton" VerticalAlignment="Center" Height="20" Width="20" Margin="5,0">
-                    <Image Source="redo.png"></Image>
+                    <Image Source="Icons/redo.png"/>
                     <Button.ToolTip>
                         <ToolTip Content="Redo"/>
+                    </Button.ToolTip>
+                </Button>
+                <Button Click="OnDrawLine" VerticalAlignment="Center" Height="20" Width="20" Margin="5,0">
+                    <Image Source="Icons/line.png"/>
+                    <Button.ToolTip>
+                        <ToolTip Content="Line"/>
+                    </Button.ToolTip>
+                </Button>
+                <Button Click="OnDrawRectangle" VerticalAlignment="Center" Height="20" Width="20" Margin="5,0">
+                    <Image Source="Icons/rect.png"/>
+                    <Button.ToolTip>
+                        <ToolTip Content="Rectangle"/>
+                    </Button.ToolTip>
+                </Button>
+                <Button Click="OnDrawCircle" VerticalAlignment="Center" Height="20" Width="20" Margin="5,0">
+                    <Image Source="Icons/circle.png"/>
+                    <Button.ToolTip>
+                        <ToolTip Content="Circle"/>
+                    </Button.ToolTip>
+                </Button>
+                <Button Click="OnScribble" VerticalAlignment="Center" Height="20" Width="20" Margin="5,0">
+                    <Image Source="Icons/scribble.png"/>
+                    <Button.ToolTip>
+                        <ToolTip Content="Scribble"/>
                     </Button.ToolTip>
                 </Button>
             </DockPanel>
