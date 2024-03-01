@@ -6,6 +6,7 @@ using Pen = System.Windows.Media.Pen;
 using Point = System.Windows.Point;
 
 namespace WPF;
+
 #region Drawing -----------------------------------------------------------------------------------
 /// <summary> Base class for different types of drawings</summary>
 public class Drawing {
@@ -108,21 +109,21 @@ class Scribble : Drawing {
       Brush = pen.Brush;
       Thickness = pen.Thickness = 2;
       Type = EShapeType.SCRIBBLE;
-      Points = new List<System.Windows.Point> ();
+      mPoints = new List<System.Windows.Point> ();
    }
    #endregion
 
    #region Methods --------------------------------------------------------------------------------
    /// <summary>Adds a point to the scribble </summary>
    /// <param name="point">The point to add </param>
-   public void AddScribblePoints (Point point) => Points.Add (point);
+   public void AddScribblePoints (Point point) => mPoints.Add (point);
 
    public override void DrawShapes (DrawingContext dc) {
       var pen = new Pen (Brush, Thickness);
-      if (Points.Count > 1) {
-         for (int i = 1; i < Points.Count; i++) {
-            var startPoint = Points[i - 1];
-            var endPoint = Points[i];
+      if (mPoints.Count > 1) {
+         for (int i = 1; i < mPoints.Count; i++) {
+            var startPoint = mPoints[i - 1];
+            var endPoint = mPoints[i];
             dc.DrawLine (pen, startPoint, endPoint);
          }
       }
@@ -130,12 +131,12 @@ class Scribble : Drawing {
 
    public override void SaveText (TextWriter tw) {
       base.SaveText (tw);
-      foreach (var point in Points) tw.WriteLine ($"{point.X},{point.Y}");
+      foreach (var point in mPoints) tw.WriteLine ($"{point.X},{point.Y}");
    }
 
    public override void SaveBinary (BinaryWriter bw) {
       base.SaveBinary (bw);
-      foreach (var point in Points) {
+      foreach (var point in mPoints) {
          bw.Write (point.X);
          bw.Write (point.Y);
       }
@@ -147,7 +148,7 @@ class Scribble : Drawing {
       string line;
       while (char.IsDigit ((char)sr.Peek ())) {
          string[] parts = sr.ReadLine ().Split (',');
-         Points.Add (new Point (double.Parse (parts[0]), double.Parse (parts[1])));
+         mPoints.Add (new Point (double.Parse (parts[0]), double.Parse (parts[1])));
       }
       return this;
    }
@@ -158,14 +159,14 @@ class Scribble : Drawing {
          double x = br.ReadDouble ();
          if (double.IsNaN (x)) break;
          double y = br.ReadDouble ();
-         Points.Add (new Point (x, y));
+         mPoints.Add (new Point (x, y));
       }
       return this;
    }
    #endregion
 
    #region Members --------------------------------------------------------------------------------
-   public List<Point> Points; // List of points defining the scribble
+   public List<Point> mPoints; // List of points defining the scribble
    #endregion
 }
 #endregion
@@ -231,3 +232,6 @@ class Circle : Drawing {
    }
 }
 #endregion
+
+
+

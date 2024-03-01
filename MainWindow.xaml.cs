@@ -11,74 +11,100 @@ using System.Windows.Media.Imaging;
 using Pen = System.Windows.Media.Pen;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 using static WPF.Drawing.EShapeType;
+using static WPF.GridStyle.EGridStyle;
 using static WPF.Drawing;
 using System.ComponentModel;
 using Point = System.Windows.Point;
+using System.Windows.Shapes;
+using Brushes = System.Windows.Media.Brushes;
+using System.Windows.Controls;
+using ComboBox = System.Windows.Controls.ComboBox;
 namespace WPF;
 public partial class MainWindow : Window {
-   #region Constructor -------------------------------------------------------------------------
+   #region Constructor ----------------------------------------------------------------------------
    /// <summary> Constructor for the MainWindow </summary>
    public MainWindow () {
       InitializeComponent ();
       WindowState = WindowState.Maximized;
       Closing += OnClosing;
+      CommandBindings.Add (new CommandBinding (ApplicationCommands.Open, OnOpenButton));
+      CommandBindings.Add (new CommandBinding (ApplicationCommands.Save, OnSaveButton));
+      CommandBindings.Add (new CommandBinding (ApplicationCommands.Undo, OnUndoButton));
+      CommandBindings.Add (new CommandBinding (ApplicationCommands.Redo, OnRedoButton));
+      CommandBindings.Add (new CommandBinding (ApplicationCommands.New, OnNewButton));
+
    }
    #endregion
 
-   #region ClickEvents -------------------------------------------------------------------------
-   /// <summary>
-   /// 
-   /// </summary>
+   #region ClickEvents ----------------------------------------------------------------------------
+   /// <summary> Handles the closing of the window </summary>
    /// <param name="sender"></param>
    /// <param name="e"></param>
-   void OnClosing (object? sender, CancelEventArgs e) {
+   public void OnClosing (object? sender, CancelEventArgs e) {
       if (MessageBox.Show (this, "Do you really want to close ?", "Confirm", MessageBoxButton.YesNo) != MessageBoxResult.Yes)
          e.Cancel = true;
    }
 
    /// <summary> Sets the current drawing state to line </summary>
-   void OnDrawLine (object sender, RoutedEventArgs e) => currentDrawingState = LINE;
+   void OnDrawLine (object sender, RoutedEventArgs e) => mCurrentDrawingState = LINE;
 
    /// <summary> Sets the current drawing state to rectangle </summary>
-   void OnDrawRectangle (object sender, RoutedEventArgs e) => currentDrawingState = RECTANGLE;
+   void OnDrawRectangle (object sender, RoutedEventArgs e) => mCurrentDrawingState = RECTANGLE;
 
    /// <summary> Sets the current drawing state to circle </summary>
-   void OnDrawCircle (object sender, RoutedEventArgs e) => currentDrawingState = CIRCLE;
+   void OnDrawCircle (object sender, RoutedEventArgs e) => mCurrentDrawingState = CIRCLE;
 
    /// <summary> Sets the current drawing state to circle </summary>
-   void OnScribble (object sender, RoutedEventArgs e) => currentDrawingState = SCRIBBLE;
+   void OnScribble (object sender, RoutedEventArgs e) => mCurrentDrawingState = SCRIBBLE;
+
+   /// <summary> Sets the current grid style </summary>
+   void OnGridStyleMenuItemClick (object sender, RoutedEventArgs e) {
+      if (sender is not MenuItem menuItem) return;
+      switch (menuItem.Name) {
+         case "MenuItemNone":
+            mGridStyle.CurrentGridStyle = None;
+            break;
+         case "MenuItemDots":
+            mGridStyle.CurrentGridStyle = Dots;
+            break;
+         case "MenuItemLines":
+            mGridStyle.CurrentGridStyle = Lines;
+            break;
+      }
+      InvalidateVisual ();
+   }
 
    /// <summary> Handles the MouseDown event </summary>
    void OnMouseDown (object sender, MouseButtonEventArgs e) {
       if (e.LeftButton == MouseButtonState.Pressed) {
          Cursor = Cursors.Pen;
-         isDrawing = true;
-         startPoint = e.GetPosition (this);
-         switch (currentDrawingState) {
+         mIsDrawing = true;
+         mStartPoint = e.GetPosition (this);
+         switch (mCurrentDrawingState) {
             case NULL:
-               startPoint = e.GetPosition (this);
-               currentDrawingState = NULL;
+               mStartPoint = e.GetPosition (this);
+               mCurrentDrawingState = NULL;
                break;
             case LINE:
                mLineDrawing = new Line (mPen);
                mDrawings.Add (mLineDrawing);
-               mLineDrawing.StartPoint = startPoint;
+               mLineDrawing.StartPoint = mStartPoint;
                break;
             case RECTANGLE:
-               mRectDrawing = new Rectangle (mPen);
-               mRectDrawing.StartPoint = startPoint;
+               mRectDrawing = new Rectangle (mPen) {
+                  StartPoint = mStartPoint
+               };
                mDrawings.Add (mRectDrawing);
                break;
             case CIRCLE:
                mCircleDrawing = new Circle (mPen);
                mDrawings.Add (mCircleDrawing);
-               mCircleDrawing.StartPoint = startPoint;
+               mCircleDrawing.StartPoint = mStartPoint;
                break;
-
             case SCRIBBLE:
-               mScribble = new (mPen);
+               mScribble = new Scribble (mPen);
                mDrawings.Add (mScribble);
-               mScribble.AddScribblePoints (startPoint);
+               mScribble.AddScribblePoints (mStartPoint);
                break;
          }
       }
@@ -86,17 +112,22 @@ public partial class MainWindow : Window {
 
    /// <summary> Handles the MouseMove event </summary>
    void OnMouseMove (object sender, MouseEventArgs e) {
-      if (e.LeftButton == MouseButtonState.Pressed && isDrawing) {
-         System.Windows.Point currentPoint = e.GetPosition (this);
-         switch (currentDrawingState) {
+      if (e.LeftButton == MouseButtonState.Pressed && mIsDrawing) {
+         Point currentPoint = e.GetPosition (this);
+         switch (mCurrentDrawingState) {
             case LINE:
-               mLineDrawing.EndPoint = currentPoint; break;
+               mLineDrawing.EndPoint = currentPoint;
+               break;
             case RECTANGLE:
-               mRectDrawing.EndPoint = currentPoint; break;
+               mRectDrawing.EndPoint = currentPoint;
+               break;
             case CIRCLE:
-               mCircleDrawing.EndPoint = currentPoint; break;
+               mCircleDrawing.EndPoint = currentPoint;
+               break;
             case SCRIBBLE:
-               mScribble.AddScribblePoints (currentPoint); break;
+               mScribble.AddScribblePoints (currentPoint);
+               break;
+
          }
       }
       InvalidateVisual ();
@@ -104,24 +135,28 @@ public partial class MainWindow : Window {
 
    /// <summary> Handles the MouseUp event </summary>
    void OnMouseUp (object sender, MouseButtonEventArgs e) {
-      if (e.LeftButton == MouseButtonState.Released && isDrawing) {
-         endPoint = e.GetPosition (this);
-         switch (currentDrawingState) {
+      if (e.LeftButton == MouseButtonState.Released && mIsDrawing) {
+         mEndPoint = e.GetPosition (this);
+         switch (mCurrentDrawingState) {
             case LINE:
-               mLineDrawing.EndPoint = endPoint; break;
+               mLineDrawing.EndPoint = mEndPoint;
+               break;
             case RECTANGLE:
-               mRectDrawing.EndPoint = endPoint; break;
+               mRectDrawing.EndPoint = mEndPoint;
+               break;
             case CIRCLE:
-               mCircleDrawing.EndPoint = endPoint; break;
+               mCircleDrawing.EndPoint = mEndPoint;
+               break;
             case SCRIBBLE:
-               mScribble.AddScribblePoints (endPoint); break;
+               mScribble.AddScribblePoints (mEndPoint);
+               break;
          }
       }
       mUndoStack.Push (mDrawings[^1]);
       InvalidateVisual ();
       mRedoStack.Clear ();
       Cursor = Cursors.Arrow;
-      isDrawing = false;
+      mIsDrawing = false;
    }
 
    /// <summary> Clears the page and create new page </summary>
@@ -169,9 +204,6 @@ public partial class MainWindow : Window {
       if (colorDialog.ShowDialog () == System.Windows.Forms.DialogResult.OK) {
          var color = new SolidColorBrush (System.Windows.Media.Color.FromArgb (colorDialog.Color.A, colorDialog.Color.R, colorDialog.Color.G, colorDialog.Color.B));
          mPen = new Pen (color, 2);
-         var newScribble = new Scribble (mPen);
-         mScribbles.Add ((newScribble, mPen));
-
          InvalidateVisual ();
       }
    }
@@ -179,7 +211,9 @@ public partial class MainWindow : Window {
    /// <summary> Handles redo property </summary>
    void OnRedoButton (object sender, RoutedEventArgs e) {
       if (mRedoStack.Count > 0) {
-         mDrawings.Add (mRedoStack.Pop ());
+         var mPrevDrawing = mRedoStack.Pop ();
+         mUndoStack.Push (mPrevDrawing);
+         mDrawings.Add (mPrevDrawing);
          InvalidateVisual ();
       }
    }
@@ -219,13 +253,12 @@ public partial class MainWindow : Window {
    }
    #endregion
 
-   #region Methods -----------------------------------------------------------------------------
+   #region Methods --------------------------------------------------------------------------------
    /// <summary> To draw various shapes </summary>
    protected override void OnRender (DrawingContext drawingContext) {
       base.OnRender (drawingContext);
-      foreach (Drawing drawing in mDrawings) {
-         drawing.DrawShapes (drawingContext);
-      }
+      if (mGridStyle.CurrentGridStyle != None) mGridStyle.DrawGridLines (drawingContext, ActualWidth, ActualHeight);
+      foreach (Drawing drawing in mDrawings) drawing.DrawShapes (drawingContext);
    }
 
    /// <summary> Saves drawings as a text </summary>
@@ -246,6 +279,7 @@ public partial class MainWindow : Window {
    /// <summary> Load drawings from the text file </summary>
    /// <param name="filePath"></param>
    void LoadFromText (string filePath) {
+      mIsDrawing = true;
       using StreamReader sr = new (filePath);
       Drawing? drawing;
       while (sr.Peek () != -1) {
@@ -300,9 +334,7 @@ public partial class MainWindow : Window {
       encoder.Save (fs);
    }
 
-   /// <summary>
-   /// Load drawings from image
-   /// </summary>
+   /// <summary>Load drawings from image </summary>
    /// <param name="filePath"></param>
    void LoadFromImage (string filePath) {
       BitmapImage bitmap = new ();
@@ -315,19 +347,18 @@ public partial class MainWindow : Window {
    #endregion
 
    #region Private Data ---------------------------------------------------------------------------
-   EShapeType currentDrawingState = SCRIBBLE;
-   Point startPoint;
-   Point endPoint;
-   bool isDrawing = false;
+   EShapeType mCurrentDrawingState = SCRIBBLE;
+   Point mStartPoint;
+   Point mEndPoint;
+   bool mIsDrawing = false;
    List<Drawing> mDrawings = new ();
-   List<(Scribble, Pen)> mScribbles = new ();
-   Pen mPen = new (System.Windows.Media.Brushes.Aqua, 2);
+   Pen mPen = new (Brushes.Aqua, 2);
    BitmapImage backgroundImage;
-   Stack<Drawing> mUndoStack = new ();
-   Stack<Drawing> mRedoStack = new ();
+   Stack<Drawing> mUndoStack = new (), mRedoStack = new ();
    Line mLineDrawing;
    Scribble mScribble;
    Rectangle mRectDrawing;
    Circle mCircleDrawing;
+   GridStyle mGridStyle = new ();
    #endregion
 }
