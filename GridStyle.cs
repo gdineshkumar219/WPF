@@ -48,6 +48,6 @@ class GridStyle {
    #endregion
 
    #region PrivateData ----------------------------------------------------------------------------
-   int mGridSize = 50;
+   readonly int mGridSize = 50;
    #endregion
 }
