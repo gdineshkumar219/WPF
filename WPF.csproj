@@ -2,10 +2,41 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
+	  <TargetFramework>net7.0-windows7.0</TargetFramework>
+	  <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+	<UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove=".gitignore" />
+    <None Remove="eraser.png" />
+    <None Remove="Icons\circle.png" />
+    <None Remove="Icons\line.png" />
+    <None Remove="Icons\new.png" />
+    <None Remove="Icons\open.png" />
+    <None Remove="Icons\pen.png" />
+    <None Remove="Icons\rect.png" />
+    <None Remove="Icons\redo.png" />
+    <None Remove="Icons\save.png" />
+    <None Remove="Icons\scribble.png" />
+    <None Remove="Icons\undo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Icons\circle.png" />
+    <Resource Include="Icons\line.png" />
+    <Resource Include="Icons\new.png" />
+    <Resource Include="Icons\open.png" />
+    <Resource Include="Icons\pen.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Icons\rect.png" />
+    <Resource Include="Icons\redo.png" />
+    <Resource Include="Icons\save.png" />
+    <Resource Include="Icons\scribble.png" />
+    <Resource Include="Icons\undo.png" />
+  </ItemGroup>
 
 </Project>
